@@ -20,7 +20,7 @@ const AccountSchema = new Schema({
     access_key: {
         type: String,
         required: true,
-        maxlength: [4, 'Max 4 characters']
+        maxlength: [70, 'Max 70 characters']
     }
 })
 
