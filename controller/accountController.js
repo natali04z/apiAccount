@@ -13,25 +13,26 @@ export async function getAccount(req, res) {
 
 // Method POST
 export async function postAccount(req, res) {
-    const body = req.body
+    const { client_document, access_key } = req.body;
     try {
-        const account_number = await Account.countDocuments() + 1
+        const account_number = (await Account.countDocuments()) + 1;
+
+        const hashedAccessKey = await bcrypt.hash(access_key, 10);
 
         const account = new Account({
             account_number,
-            client_document: body.client_document,
-            opening_date: new Date(),
-            balance: 0,
-            access_key: await bcrypt.hash(body.access_key, 4),
-        })
+            client_document,
+            access_key: hashedAccessKey
+        });
 
-        await account.save()
-        res.status(200).json({ msg: 'Account created successfully' })
+        await account.save();
+
+        res.status(201).json({ msg: 'Account created successfully', account_number });
     } catch (error) {
-        res.status(500).json({ msg: 'Error creating account' })
+        console.error('Error creating account:', error);
+        res.status(500).json({ msg: 'Error creating account', error: error.message });
     }
 }
-
 // Deposit Money method
 export async function depositMoney(req, res) {
     const { account_number, amount, access_key } = req.body
