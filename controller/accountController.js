@@ -20,7 +20,6 @@ export async function postAccount(req, res) {
         const hashedAccessKey = await bcrypt.hash(access_key, 10);
 
         const account = new Account({
-            account_number,
             client_document,
             access_key: hashedAccessKey
         });
