@@ -21,7 +21,9 @@ export async function postAccount(req, res) {
 
         const account = new Account({
             account_number,
-            client_document,
+            client_document: body.client_document,
+            opening_date: new Date(),
+            balance: 0,
             access_key: hashedAccessKey
         });
 
@@ -35,80 +37,58 @@ export async function postAccount(req, res) {
 }
 // Deposit Money method
 export async function depositMoney(req, res) {
-    const { account_number, amount, access_key } = req.body
-    let msg = 'Money deposited'
+    const { account_number, amount, access_key } = req.body;
+    let msg = 'Money deposited';
 
     try {
         if (amount <= 0) {
-            throw new Error('Amount must be greater than 0')
+            throw new Error('Amount must be greater than 0');
         }
 
-        const account = await Account.findOne({ account_number })
+        const account = await Account.findOne({ account_number });
         if (!account) {
-            throw new Error('Account not found')
+            throw new Error('Account not found');
         }
 
-        const isMatch = await bcrypt.compare(access_key, account.access_key)
+        const isMatch = await bcrypt.compare(access_key, account.access_key);
         if (!isMatch) {
-            throw new Error('Incorrect access key')
+            throw new Error('Incorrect access key');
         }
 
-        account.balance += amount
-        await account.save()
+        account.balance += amount;
+        await account.save();
 
-        res.status(200).json({ msg })
+        res.status(200).json({ msg });
     } catch (error) {
-        res.status500().json({ msg: error.message })
+        res.status(500).json({ msg: error.message });
     }
 }
 
 // Withdraw Money method
 export async function withdrawMoney(req, res) {
-    const { account_number, amount, access_key } = req.body
-    let msg = 'Money withdrawn'
+    const { account_number, amount, access_key } = req.body;
+    let msg = 'Money withdrawn';
 
     try {
-        const account = await Account.findOne({ account_number })
+        const account = await Account.findOne({ account_number });
         if (!account) {
-            throw new Error('Account not found')
+            throw new Error('Account not found');
         }
 
-        const isMatch = await bcrypt.compare(access_key, account.access_key)
+        const isMatch = await bcrypt.compare(access_key, account.access_key);
         if (!isMatch) {
-            throw new Error('Incorrect access key')
+            throw new Error('Incorrect access key');
         }
 
         if (amount > account.balance) {
-            throw new Error('Insufficient funds')
+            throw new Error('Insufficient funds');
         }
 
-        account.balance -= amount
-        await account.save()
+        account.balance -= amount;
+        await account.save();
 
-        res.status(200).json({ msg })
+        res.status(200).json({ msg });
     } catch (error) {
-        res.status(500).json({ msg: error.message })
-    }
-}
-
-// DELETE method
-export async function deleteAccount(req, res) {
-    const id = req.params.id
-    let msg = 'Account deleted'
-
-    try {
-        const account = await Account.findById(id)
-        if (!account) {
-            throw new Error('Account not found')
-        }
-
-        if (account.balance !== 0) {
-            throw new Error('Cannot delete account with non-zero balance')
-        }
-
-        await Account.findByIdAndDelete(id)
-        res.status(200).json({ msg })
-    } catch (error) {
-        res.status(500).json({ msg: 'Error deleting account' })
+        res.status(500).json({ msg: error.message });
     }
 }

@@ -9,7 +9,7 @@ class Server {
         this.app = express()
         this.listen()
         this.dbConnect()
-        this.pathAccount = '/api/account'
+        this.pathAccount = '/api/accounts'
         this.route()
     }
 
