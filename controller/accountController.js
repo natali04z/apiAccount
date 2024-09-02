@@ -21,7 +21,7 @@ export async function postAccount(req, res) {
 
         const account = new Account({
             account_number,
-            client_document: body.client_document,
+            client_document,
             opening_date: new Date(),
             balance: 0,
             access_key: hashedAccessKey
