@@ -4,7 +4,6 @@ const AccountSchema = new Schema({
     account_number: {
         type: String,
         unique: true,
-        autoIncrement: true,
         required: true
     },
     client_document: {
