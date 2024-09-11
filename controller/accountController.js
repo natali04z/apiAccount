@@ -11,6 +11,16 @@ export async function getAccount(req, res) {
     }
 }
 
+//Method all accounts
+export async function getAllActiveAccounts(req, res ) {
+    try{
+        const account = await savingAccounts.find({status: 'available'})
+        res.status(200).json(account)
+    }catch (error){
+        res.status(400).json({error: error.message})
+    }
+}
+
 // Method POST
 export async function postAccount(req, res) {
     const { client_document, access_key } = req.body;
@@ -64,12 +74,16 @@ export async function depositMoney(req, res) {
     }
 }
 
-// Withdraw Money method
-export async function withdrawMoney(req, res) {
+//Method retire money
+export async function putRetire(req, res) {
     const { account_number, amount, access_key } = req.body;
-    let msg = 'Money withdrawn';
+    let msg = 'Successful Withdrawl';
 
     try {
+        if (amount <= 0) {
+            throw new Error('Amount must be greater than 0');
+        }
+
         const account = await Account.findOne({ account_number });
         if (!account) {
             throw new Error('Account not found');
@@ -80,11 +94,13 @@ export async function withdrawMoney(req, res) {
             throw new Error('Incorrect access key');
         }
 
-        if (amount > account.balance) {
-            throw new Error('Insufficient funds');
+        if (account.balance >= amount) {
+
+            account.balance -= amount;
+        } else {
+            throw new Error('Not enough money')
         }
 
-        account.balance -= amount;
         await account.save();
 
         res.status(200).json({ msg });

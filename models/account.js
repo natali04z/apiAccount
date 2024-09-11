@@ -21,6 +21,11 @@ const AccountSchema = new Schema({
         type: String,
         required: true,
         maxlength: [70, 'Max 70 characters']
+    },
+    status: {
+        type: String,
+        enum: ['available', 'unavailable'],
+        default: 'available',
     }
 })
 
